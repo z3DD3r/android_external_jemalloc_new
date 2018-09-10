@@ -4,8 +4,13 @@
 #include "jemalloc/internal/sc.h"
 
 /* Default decay times in milliseconds. */
+#if defined(__ANDROID__)
+#define DIRTY_DECAY_MS_DEFAULT	ZD(0)
+#define MUZZY_DECAY_MS_DEFAULT	ZD(0)
+#else
 #define DIRTY_DECAY_MS_DEFAULT	ZD(10 * 1000)
 #define MUZZY_DECAY_MS_DEFAULT	(0)
+#endif
 /* Number of event ticks between time checks. */
 #define ARENA_DECAY_NTICKS_PER_UPDATE	1000
 

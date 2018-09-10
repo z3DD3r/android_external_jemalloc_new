@@ -974,7 +974,7 @@ malloc_slow_flag_init(void) {
 }
 
 /* Number of sources for initializing malloc_conf */
-#define MALLOC_CONF_NSOURCES 5
+#define MALLOC_CONF_NSOURCES 2
 
 static const char *
 obtain_malloc_conf(unsigned which_source, char buf[PATH_MAX + 1]) {
@@ -1069,11 +1069,6 @@ malloc_conf_init_helper(sc_data_t *sc_data, unsigned bin_shard_sizes[SC_NBINS],
 	static const char *opts_explain[MALLOC_CONF_NSOURCES] = {
 		"string specified via --with-malloc-conf",
 		"string pointed to by the global variable malloc_conf",
-		"\"name\" of the file referenced by the symbolic link named "
-		    "/etc/malloc.conf",
-		"value of the environment variable MALLOC_CONF",
-		"string pointed to by the global variable "
-		    "malloc_conf_2_conf_harder",
 	};
 	unsigned i;
 	const char *opts, *k, *v;
@@ -1742,8 +1737,7 @@ malloc_conf_init_check_deps(void) {
 
 static void
 malloc_conf_init(sc_data_t *sc_data, unsigned bin_shard_sizes[SC_NBINS]) {
-	const char *opts_cache[MALLOC_CONF_NSOURCES] = {NULL, NULL, NULL, NULL,
-		NULL};
+	const char *opts_cache[MALLOC_CONF_NSOURCES] = {NULL, NULL};
 	char buf[PATH_MAX + 1];
 
 	/* The first call only set the confirm_conf option and opts_cache */
@@ -1925,7 +1919,13 @@ static bool
 malloc_init_hard_recursible(void) {
 	malloc_init_state = malloc_init_recursible;
 
+#if defined(__ANDROID__) && defined(ANDROID_NUM_ARENAS)
+	/* Hardcode since this value won't be used. */
+	ncpus = 2;
+#else
 	ncpus = malloc_ncpus();
+#endif
+
 	if (opt_percpu_arena != percpu_arena_disabled) {
 		bool cpu_count_is_deterministic =
 		    malloc_cpu_count_is_deterministic();
@@ -1973,6 +1973,9 @@ malloc_init_hard_recursible(void) {
 
 static unsigned
 malloc_narenas_default(void) {
+#if defined(ANDROID_NUM_ARENAS)
+	return ANDROID_NUM_ARENAS;
+#else
 	assert(ncpus > 0);
 	/*
 	 * For SMP systems, create more than one arena per CPU by
@@ -1989,6 +1992,7 @@ malloc_narenas_default(void) {
 	} else {
 		return 1;
 	}
+#endif
 }
 
 static percpu_arena_mode_t
@@ -4474,3 +4478,8 @@ jemalloc_postfork_child(void) {
 }
 
 /******************************************************************************/
+
+#if defined(__ANDROID__) && !defined(JEMALLOC_JET)
+#include "android_je_iterate.c"
+#include "android_je_mallinfo.c"
+#endif

@@ -27,7 +27,11 @@ typedef struct tcaches_s tcaches_t;
 /* Used for explicit tcache only. Means flushed but not destroyed. */
 #define TCACHES_ELM_NEED_REINIT ((tcache_t *)(uintptr_t)1)
 
+#if defined(ANDROID_LG_TCACHE_MAXCLASS_DEFAULT)
+#define TCACHE_LG_MAXCLASS_LIMIT	ANDROID_LG_TCACHE_MAXCLASS_DEFAULT
+#else
 #define TCACHE_LG_MAXCLASS_LIMIT 23 /* tcache_maxclass = 8M */
+#endif
 #define TCACHE_MAXCLASS_LIMIT ((size_t)1 << TCACHE_LG_MAXCLASS_LIMIT)
 #define TCACHE_NBINS_MAX (SC_NBINS + SC_NGROUP *			\
     (TCACHE_LG_MAXCLASS_LIMIT - SC_LG_LARGE_MINCLASS) + 1)

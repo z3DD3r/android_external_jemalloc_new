@@ -23,6 +23,13 @@
 #endif
 
 /******************************************************************************/
+/* Defines/includes needed for special android code. */
+
+#if defined(__ANDROID__)
+#include <sys/prctl.h>
+#endif
+
+/******************************************************************************/
 /* Data. */
 
 /* Actual operating system page size, detected during bootstrap, <= PAGE. */
@@ -158,6 +165,13 @@ os_pages_map(void *addr, size_t size, size_t alignment, bool *commit) {
 		 */
 		os_pages_unmap(ret, size);
 		ret = NULL;
+	}
+#endif
+#if defined(__ANDROID__)
+	if (ret != NULL) {
+		/* Name this memory as being used by libc */
+		prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME, ret, size,
+		    "libc_malloc");
 	}
 #endif
 	assert(ret == NULL || (addr == NULL && ret != addr) || (addr != NULL &&
@@ -783,6 +797,11 @@ pages_boot(void) {
 	mmap_flags = MAP_PRIVATE | MAP_ANON;
 #endif
 
+#if defined(__ANDROID__)
+  /* Android always supports overcommits. */
+  os_overcommits = true;
+#else  /* __ANDROID__ */
+
 #ifdef JEMALLOC_SYSCTL_VM_OVERCOMMIT
 	os_overcommits = os_overcommits_sysctl();
 #elif defined(JEMALLOC_PROC_SYS_VM_OVERCOMMIT_MEMORY)
@@ -797,6 +816,8 @@ pages_boot(void) {
 #else
 	os_overcommits = false;
 #endif
+
+#endif  /* __ANDROID__ */
 
 	init_thp_state();
 

@@ -16,9 +16,21 @@ bool opt_tcache = true;
 size_t opt_tcache_max = ((size_t)1) << 15;
 
 /* Reasonable defaults for min and max values. */
+#if defined(ANDROID_TCACHE_NSLOTS_SMALL_MIN)
+unsigned opt_tcache_nslots_small_min = ANDROID_TCACHE_NSLOTS_SMALL_MIN;
+#else
 unsigned opt_tcache_nslots_small_min = 20;
+#endif
+#if defined(ANDROID_TCACHE_NSLOTS_SMALL_MAX)
+unsigned opt_tcache_nslots_small_max = ANDROID_TCACHE_NSLOTS_SMALL_MAX;
+#else
 unsigned opt_tcache_nslots_small_max = 200;
+#endif
+#if defined(ANDROID_TCACHE_NSLOTS_LARGE)
+unsigned opt_tcache_nslots_large = ANDROID_TCACHE_NSLOTS_LARGE;
+#else
 unsigned opt_tcache_nslots_large = 20;
+#endif
 
 /*
  * We attempt to make the number of slots in a tcache bin for a given size class
