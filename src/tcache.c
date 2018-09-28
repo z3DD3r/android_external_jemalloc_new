@@ -10,8 +10,11 @@
 /******************************************************************************/
 /* Data. */
 
+#if !defined(__BIONIC__) || defined(ANDROID_ENABLE_TCACHE)
 bool opt_tcache = true;
-
+#else
+bool opt_tcache = false;
+#endif
 /* tcache_maxclass is set to 32KB by default.  */
 size_t opt_tcache_max = ((size_t)1) << 15;
 

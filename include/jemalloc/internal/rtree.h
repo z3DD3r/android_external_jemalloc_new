@@ -366,7 +366,12 @@ rtree_leaf_elm_lookup(tsdn_t *tsdn, rtree_t *rtree, rtree_ctx_t *rtree_ctx,
 	/* Fast path: L1 direct mapped cache. */
 	if (likely(rtree_ctx->cache[slot].leafkey == leafkey)) {
 		rtree_leaf_elm_t *leaf = rtree_ctx->cache[slot].leaf;
-		assert(leaf != NULL);
+		/* ANDROID CHANGE: Bad pointers return NULL */
+		/* assert(leaf != NULL); */
+		if (leaf == NULL) {
+			return NULL;
+		}
+		/* ANDROID END CHANGE */
 		uintptr_t subkey = rtree_subkey(key, RTREE_HEIGHT-1);
 		return &leaf[subkey];
 	}
@@ -377,7 +382,12 @@ rtree_leaf_elm_lookup(tsdn_t *tsdn, rtree_t *rtree, rtree_ctx_t *rtree_ctx,
 #define RTREE_CACHE_CHECK_L2(i) do {					\
 	if (likely(rtree_ctx->l2_cache[i].leafkey == leafkey)) {	\
 		rtree_leaf_elm_t *leaf = rtree_ctx->l2_cache[i].leaf;	\
-		assert(leaf != NULL);					\
+		/* ANDROID CHANGE: Bad pointers return NULL */		\
+		/* assert(leaf != NULL); */				\
+		if (leaf == NULL) {					\
+			return NULL;					\
+		}							\
+		/* ANDROID END CHANGE */				\
 		if (i > 0) {						\
 			/* Bubble up by one. */				\
 			rtree_ctx->l2_cache[i].leafkey =		\
