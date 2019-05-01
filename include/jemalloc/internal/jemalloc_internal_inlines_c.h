@@ -225,10 +225,11 @@ JEMALLOC_ALWAYS_INLINE void
 fastpath_success_finish(tsd_t *tsd, uint64_t allocated_after,
     cache_bin_t *bin, void *ret) {
 	thread_allocated_set(tsd, allocated_after);
+#if defined(ANDROID_ENABLE_TCACHE_STATS)
 	if (config_stats) {
 		bin->tstats.nrequests++;
 	}
-
+#endif
 	LOG("core.malloc.exit", "result: %p", ret);
 }
 

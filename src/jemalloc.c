@@ -4246,9 +4246,11 @@ batch_alloc(void **ptrs, size_t num, size_t size, int flags) {
 				 */
 				size_t n = cache_bin_alloc_batch(bin, bin_batch,
 				    ptrs + filled);
+#if defined(ANDROID_ENABLE_TCACHE_STATS)
 				if (config_stats) {
 					bin->tstats.nrequests += n;
 				}
+#endif
 				if (zero) {
 					for (size_t i = 0; i < n; ++i) {
 						memset(ptrs[filled + i], 0,

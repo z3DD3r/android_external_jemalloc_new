@@ -1018,10 +1018,14 @@ label_refill:
 
 	if (config_stats && !alloc_and_retry) {
 		bin->stats.nmalloc += filled;
+#if defined(ANDROID_ENABLE_TCACHE_STATS)
 		bin->stats.nrequests += cache_bin->tstats.nrequests;
+#endif
 		bin->stats.curregs += filled;
 		bin->stats.nfills++;
+#if defined(ANDROID_ENABLE_TCACHE_STATS)
 		cache_bin->tstats.nrequests = 0;
+#endif
 	}
 
 	malloc_mutex_unlock(tsdn, &bin->lock);

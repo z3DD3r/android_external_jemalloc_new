@@ -78,9 +78,11 @@ tcache_alloc_small(tsd_t *tsd, arena_t *arena, tcache_t *tcache,
 		assert(tcache_salloc(tsd_tsdn(tsd), ret) == usize);
 		memset(ret, 0, usize);
 	}
+#if defined(ANDROID_ENABLE_TCACHE_STATS)
 	if (config_stats) {
 		bin->tstats.nrequests++;
 	}
+#endif
 	return ret;
 }
 
@@ -116,10 +118,11 @@ tcache_alloc_large(tsd_t *tsd, arena_t *arena, tcache_t *tcache, size_t size,
 			assert(usize <= tcache_maxclass);
 			memset(ret, 0, usize);
 		}
-
+#if defined(ANDROID_ENABLE_TCACHE_STATS)
 		if (config_stats) {
 			bin->tstats.nrequests++;
 		}
+#endif
 	}
 
 	return ret;

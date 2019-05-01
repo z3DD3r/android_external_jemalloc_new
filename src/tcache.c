@@ -358,7 +358,9 @@ tcache_bin_flush_impl(tsd_t *tsd, tcache_t *tcache, cache_bin_t *cache_bin,
 	 * the one guarding the arena-level stats counters we flush our
 	 * thread-local ones to, we do so under one critical section.
 	 */
+#if defined(ANDROID_ENABLE_TCACHE_STATS)
 	bool merged_stats = false;
+#endif
 	while (nflush > 0) {
 		/* Lock the arena, or bin, associated with the first object. */
 		edata_t *edata = item_edata[0].edata;
@@ -398,6 +400,7 @@ tcache_bin_flush_impl(tsd_t *tsd, tcache_t *tcache, cache_bin_t *cache_bin,
 		 * If we acquired the right lock and have some stats to flush,
 		 * flush them.
 		 */
+#if defined(ANDROID_ENABLE_TCACHE_STATS)
 		if (config_stats && tcache_arena == cur_arena
 		    && !merged_stats) {
 			merged_stats = true;
@@ -413,6 +416,7 @@ tcache_bin_flush_impl(tsd_t *tsd, tcache_t *tcache, cache_bin_t *cache_bin,
 				cache_bin->tstats.nrequests = 0;
 			}
 		}
+#endif
 
 		/*
 		 * Large allocations need special prep done.  Afterwards, we can
@@ -493,6 +497,7 @@ tcache_bin_flush_impl(tsd_t *tsd, tcache_t *tcache, cache_bin_t *cache_bin,
 
 	}
 
+#if defined(ANDROID_ENABLE_TCACHE_STATS)
 	if (config_stats && !merged_stats) {
 		if (small) {
 			/*
@@ -514,7 +519,7 @@ tcache_bin_flush_impl(tsd_t *tsd, tcache_t *tcache, cache_bin_t *cache_bin,
 			cache_bin->tstats.nrequests = 0;
 		}
 	}
-
+#endif
 }
 
 JEMALLOC_ALWAYS_INLINE void
@@ -798,7 +803,7 @@ static void
 tcache_flush_cache(tsd_t *tsd, tcache_t *tcache) {
 	tcache_slow_t *tcache_slow = tcache->tcache_slow;
 	assert(tcache_slow->arena != NULL);
-
+#if defined(ANDROID_ENABLE_TCACHE_STATS)
 	for (unsigned i = 0; i < nhbins; i++) {
 		cache_bin_t *cache_bin = &tcache->bins[i];
 		if (i < SC_NBINS) {
@@ -810,6 +815,7 @@ tcache_flush_cache(tsd_t *tsd, tcache_t *tcache) {
 			assert(cache_bin->tstats.nrequests == 0);
 		}
 	}
+#endif
 }
 
 void
@@ -877,7 +883,7 @@ tcache_cleanup(tsd_t *tsd) {
 void
 tcache_stats_merge(tsdn_t *tsdn, tcache_t *tcache, arena_t *arena) {
 	cassert(config_stats);
-
+#if defined(ANDROID_ENABLE_TCACHE_STATS)
 	/* Merge and reset tcache stats. */
 	for (unsigned i = 0; i < nhbins; i++) {
 		cache_bin_t *cache_bin = &tcache->bins[i];
@@ -892,6 +898,7 @@ tcache_stats_merge(tsdn_t *tsdn, tcache_t *tcache, arena_t *arena) {
 		}
 		cache_bin->tstats.nrequests = 0;
 	}
+#endif
 }
 
 static bool

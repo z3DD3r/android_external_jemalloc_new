@@ -86,13 +86,15 @@ struct cache_bin_s {
 	 * the head points to one element past the owned array.
 	 */
 	void **stack_head;
+	/* Removing this variable make the cache_t structure fit in a single page. */
+#if defined(ANDROID_ENABLE_TCACHE_STATS)
 	/*
 	 * cur_ptr and stats are both modified frequently.  Let's keep them
 	 * close so that they have a higher chance of being on the same
 	 * cacheline, thus less write-backs.
 	 */
 	cache_bin_stats_t tstats;
-
+#endif
 	/*
 	 * The low bits of the address of the first item in the stack that
 	 * hasn't been used since the last GC, to track the low water mark (min
