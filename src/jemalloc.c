@@ -1058,23 +1058,6 @@ malloc_conf_init(void) {
 
 			CONF_HANDLE_BOOL(opt_abort, "abort")
 			CONF_HANDLE_BOOL(opt_abort_conf, "abort_conf")
-			if (strncmp("metadata_thp", k, klen) == 0) {
-				int i;
-				bool match = false;
-				for (i = 0; i < metadata_thp_mode_limit; i++) {
-					if (strncmp(metadata_thp_mode_names[i],
-					    v, vlen) == 0) {
-						opt_metadata_thp = i;
-						match = true;
-						break;
-					}
-				}
-				if (!match) {
-					malloc_conf_error("Invalid conf value",
-					    k, klen, v, vlen);
-				}
-				continue;
-			}
 			CONF_HANDLE_BOOL(opt_retain, "retain")
 			if (strncmp("dss", k, klen) == 0) {
 				int i;
@@ -1209,27 +1192,6 @@ malloc_conf_init(void) {
 					log_var_names[cpylen] = '\0';
 					continue;
 				}
-			}
-			if (CONF_MATCH("thp")) {
-				bool match = false;
-				for (int i = 0; i < thp_mode_names_limit; i++) {
-					if (strncmp(thp_mode_names[i],v, vlen)
-					    == 0) {
-						if (!have_madvise_huge) {
-							malloc_conf_error(
-							    "No THP support",
-							    k, klen, v, vlen);
-						}
-						opt_thp = i;
-						match = true;
-						break;
-					}
-				}
-				if (!match) {
-					malloc_conf_error("Invalid conf value",
-					    k, klen, v, vlen);
-				}
-				continue;
 			}
 			malloc_conf_error("Invalid conf pair", k, klen, v,
 			    vlen);
