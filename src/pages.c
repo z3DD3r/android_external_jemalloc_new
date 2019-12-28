@@ -40,7 +40,7 @@ static size_t	os_page;
 #  define PAGES_PROT_DECOMMIT (PROT_NONE)
 static int	mmap_flags;
 #endif
-static bool	os_overcommits;
+#define os_overcommits true
 
 const char *thp_mode_names[] = {
 	"default",
@@ -796,28 +796,6 @@ pages_boot(void) {
 #ifndef _WIN32
 	mmap_flags = MAP_PRIVATE | MAP_ANON;
 #endif
-
-#if defined(__ANDROID__)
-  /* Android always supports overcommits. */
-  os_overcommits = true;
-#else  /* __ANDROID__ */
-
-#ifdef JEMALLOC_SYSCTL_VM_OVERCOMMIT
-	os_overcommits = os_overcommits_sysctl();
-#elif defined(JEMALLOC_PROC_SYS_VM_OVERCOMMIT_MEMORY)
-	os_overcommits = os_overcommits_proc();
-#  ifdef MAP_NORESERVE
-	if (os_overcommits) {
-		mmap_flags |= MAP_NORESERVE;
-	}
-#  endif
-#elif defined(__NetBSD__)
-	os_overcommits = true;
-#else
-	os_overcommits = false;
-#endif
-
-#endif  /* __ANDROID__ */
 
 	init_thp_state();
 
