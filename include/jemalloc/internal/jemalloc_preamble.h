@@ -128,13 +128,12 @@ static const bool maps_coalesce =
 #define config_stats (false)
 #endif
 
-static const bool config_tls =
 #ifdef JEMALLOC_TLS
-    true
+#define config_tls (true)
 #else
-    false
+#define config_tls (false)
 #endif
-    ;
+
 static const bool config_utrace =
 #ifdef JEMALLOC_UTRACE
     true
