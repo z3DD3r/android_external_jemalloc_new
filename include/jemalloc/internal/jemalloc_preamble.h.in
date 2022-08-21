@@ -121,13 +121,13 @@ static const bool maps_coalesce =
     false
 #endif
     ;
-static const bool config_stats =
+
 #ifdef JEMALLOC_STATS
-    true
+#define config_stats (true)
 #else
-    false
+#define config_stats (false)
 #endif
-    ;
+
 static const bool config_tls =
 #ifdef JEMALLOC_TLS
     true
