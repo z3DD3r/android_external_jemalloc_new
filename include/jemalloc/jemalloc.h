@@ -23,7 +23,7 @@ extern "C" {
 /* #undef JEMALLOC_HAVE_ATTR_FALLTHROUGH */
 
 /* Defined if cold attribute is supported. */
-#define JEMALLOC_HAVE_ATTR_COLD
+/* #undef JEMALLOC_HAVE_ATTR_COLD */
 
 /*
  * Define overrides for non-standard allocator-related functions if they are
